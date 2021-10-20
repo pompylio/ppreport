@@ -1,0 +1,14 @@
+Package: ppreport
+Type: Package
+Title: Additional functions to rmarkdown and others packages to create reports rmd
+Version: 0.0.0.0000
+Author: Pompylio Jeronimo de Lima
+Maintainer: Pompylio Jeronimo de Lima <pompylio.lima@gmail.com>
+Description: Additional functions to rmarkdown and others packages to create reports.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Suggests: testthat
+RoxygenNote: 7.1.1
+Imports: dplyr, lubridate, stringr, stringi, knitr, rmarkdown, flextable, readxl, tidyr
+Depends: R (>= 3.0)
