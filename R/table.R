@@ -10,24 +10,26 @@ NULL
 #' @param bg_title Cor do fundo para o título
 #' @param border_color Cor da borda
 #' @param bg_row Cor do fundo das linhas da tabela
-#' @param center_all Permite centralizar o texto de todas as colunas
+#' @param align_col Permite definir o alinhamento para cada coluna
 #'
 #' @return Tema padrão para a tabela
 #' 
 #' @export
-pp_flextheme <- function(x, bg_title = "#336699", border_color = "#d9d9d9", bg_row, center_all = F) {
+pp_flextheme <- function(x, bg_title = "#336699", border_color = "#d9d9d9", bg_row, align_col) {
   x <- border_remove(x)
   std_border <- fp_border_default(width = 0.9, color = border_color)
   x <- border_outer(x, part="all", border = std_border)
   x <- border_inner_h(x, border = std_border, part="all")
   x <- border_inner_v(x, border = std_border, part="all")
   x <- italic(x = x, italic = TRUE, part = "footer")
-  if(center_all){
-    x <- align_text_col(x, align = "center", header = TRUE)
-    x <- align_nottext_col(x, align = "center", header = TRUE)
-  } else {
-    x <- align_text_col(x, align = "left", header = TRUE)
-    x <- align_nottext_col(x, align = "right", header = TRUE)
+  if(!missing(align_col)){
+    align_col <- case_when(align_col == "l" ~ "left",
+                           align_col == "r" ~ "right",
+                           align_col == "c" ~ "center",
+                           align_col == "j" ~ "justify")
+    for(j in seq_along(align_col)){
+      x <- align(x, j = j, align = align_col[j], part = "all")
+    }
   }
   x <- colformat_date(x = x, fmt_date = "%d/%m/%Y",)
   x <- colformat_int(x = x, big.mark=".", na_str = "")

@@ -6,9 +6,10 @@
 do tipo 'latex'}
 \usage{
 pp_content_latex(
-  bg_color = "ffffff",
-  border_color = "ffffff",
-  border_width = 0.1
+  bg_color = "#ffffff",
+  border_color = "#ffffff",
+  border_width = 0.1,
+  height = 3
 )
 }
 \arguments{
@@ -17,6 +18,8 @@ pp_content_latex(
 \item{border_color}{Cor da borda da tabela de conteúdo}
 
 \item{border_width}{Tamanho da linha da borda da tabela de conteúdo}
+
+\item{height}{Altura da tabela em cm. Se ausente, altura automática.}
 }
 \value{
 Layout padrão da tabela de conteúdo

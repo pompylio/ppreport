@@ -7,8 +7,8 @@
 pp_title_latex(
   title = "",
   subtitle = "",
-  bg_color = "2f9e41",
-  font_color = "ffffff",
+  bg_color = "#2f9e41",
+  font_color = "#ffffff",
   logo
 )
 }

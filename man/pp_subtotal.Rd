@@ -7,7 +7,7 @@
 pp_subtotal(
   df,
   vars_group,
-  total_name,
+  total_name = NULL,
   total_all = T,
   position = "down",
   vars_suppress = NULL

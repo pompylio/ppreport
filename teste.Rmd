@@ -1,0 +1,54 @@
+---
+geometry: margin=0.5in
+mainfont: Arial
+output:
+  pdf_document: 
+    toc_depth: 2
+    keep_tex: yes
+header-includes:
+- \renewcommand{\contentsname}{}
+- \usepackage{pdflscape}
+- \newcommand{\blandscape}{\begin{landscape}}
+- \newcommand{\elandscape}{\end{landscape}}
+- \usepackage{tcolorbox}
+- \usepackage{caption}
+- \usepackage[utf8]{inputenc}
+- \captionsetup{labelformat=empty,textfont=bf}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+source("R/latex.R")
+```
+
+```{r message=FALSE, warning=FALSE, results="asis"}
+pp_title_latex(
+  title = "Receita Própria",
+  subtitle = "Execução Orçamentária e Financeira",
+  bg_color = "000000",
+  font_color = "ffffff",
+  logo = "~/projects/cgor-data/img/logo.png")
+
+pp_content_latex(
+  bg_color = "#f2f2f2",
+  border_color = "ffffff", 
+  border_width = 0.5)
+
+pp_info_latex(
+  x = c("Exercício:"="2021",
+        "Referência:"=paste("2021-10-28", "(considerar dia útil anterior)"),
+        "Unidade Orçamentária"="26428 Instituto Federal de Brasília",
+        "Responsável:"="Coordenação-Geral de Orçamento",
+        "Contato:"="orcamento@ifb.edu.br",
+        "Fonte:"="SIAFI"),
+    
+  border_color = "f2f2f2",
+  border_width = 0.2)
+```
+
+# Teste
+
+teste

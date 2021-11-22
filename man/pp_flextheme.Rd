@@ -10,7 +10,7 @@ pp_flextheme(
   bg_title = "#336699",
   border_color = "#d9d9d9",
   bg_row,
-  center_all = F
+  align_col
 )
 }
 \arguments{
@@ -22,7 +22,7 @@ pp_flextheme(
 
 \item{bg_row}{Cor do fundo das linhas da tabela}
 
-\item{center_all}{Permite centralizar o texto de todas as colunas}
+\item{align_col}{Permite definir o alinhamento para cada coluna}
 }
 \value{
 Tema padrão para a tabela

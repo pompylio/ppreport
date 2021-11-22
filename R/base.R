@@ -98,20 +98,26 @@ pp_list_rda <- function(x) {
 #' @return Vetor 'vector' ou coluna 'column' do tipo numérica ou textual
 #' 
 #' @export
-pp_percent <- function(df, num=NULL, den=NULL, nsmall=1, format=FALSE){
+pp_percent <- function(df, num=NULL, den=NULL, nsmall=1, format=FALSE, diff=FALSE){
   if(!is.null(num) & !is.null(den)){
     if(missing(df)){
       df <- (num/den)*100
+      if(diff) df <- df-100
       df <- ifelse(is.infinite(df) | is.na(df), 0, df)
       df <- round(df, digits = nsmall)
-      if(format) df <- paste(format(x = df, digits = 0, nsmall = nsmall, big.mark = ".", decimal.mark = ",", scientific = FALSE), "%")
+      if(format) df <- paste0(format(x = df, digits = 0, nsmall = nsmall, big.mark = ".", decimal.mark = ",", scientific = FALSE), "%")
       } else {
         columns <- paste0(num,"_PER")
         for(i in seq_along(columns)){
           df[,columns[i]] <- (df[,num[i]]/df[,den])*100
+          df <- df %>% 
+            mutate_at(.vars = columns[i], .funs = function(x) ifelse(is.infinite(x) | is.na(x), 0, x))
+          if(diff) df[,columns[i]] <- df[,columns[i]]-100
           df[,columns[i]] <- round(df[,columns[i]], digits = nsmall)
-          df[,columns[i]] <- ifelse(is.infinite(df[,columns[i]]) | is.na(df[,columns[i]]), 0, df[,columns[i]])
-          if(format) df[,columns[i]] <- paste(format(x = df[,columns[i]], digits = 0, nsmall = nsmall, big.mark = ".", decimal.mark = ",", scientific = FALSE), "%")
+          if(format){
+            df <- df %>% 
+              mutate_at(.vars = columns[i], .funs = function(x) paste0(format(x = x, digits = 0, nsmall = nsmall, big.mark = ".", decimal.mark = ",", scientific = FALSE), "%"))
+          }
           }
         }
     } else {
@@ -169,4 +175,28 @@ pp_format_str <- function(x, enc = "Latin-ASCII", sep = "_", str_to = "upper"){
          title = str_to_title(x),
          stop(""))
   return(x)
+}
+
+#' Conversão de mês numérico do TG para sigla do mês
+#'
+#' @param x Mês ou meses em formato numérico (1, 2, 3, 01, 02, 03).
+#' 
+#' @return Mês ou meses no formato texto (Jan, Fev, Mar, Jan, Fev, Mar)
+#' 
+#' @export
+pp_format_month <- function(x){
+  case_when(
+    x == "1" | x == "01" ~ "Jan",
+    x == "2" | x == "02" ~ "Fev",
+    x == "3" | x == "03" ~ "Mar",
+    x == "4" | x == "04" ~ "Abr",
+    x == "5" | x == "05" ~ "Mai",
+    x == "6" | x == "06" ~ "Jun",
+    x == "7" | x == "07" ~ "Jul",
+    x == "8" | x == "08" ~ "Ago",
+    x == "9" | x == "09" ~ "Set",
+    x == "10" ~ "Out",
+    x == "11" ~ "Nov",
+    x == "12" ~ "Dez",
+    TRUE ~ as.character(x))
 }

@@ -43,7 +43,7 @@ pp_database <- function(path, database){
       path = path, 
       col_names = tb_title_valid$colnames_new, 
       col_types = tb_title_valid$type,
-      skip = unique(tb_title_valid$line_initial), 
+      skip = max(tb_data$skip), 
     progress = FALSE))
   if(!ncol(tb_title)==nrow(tb_data)){
     for(i in 1:nrow(tb_title_missing)){
@@ -109,7 +109,7 @@ pp_database <- function(path, database){
                ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 8) %in% c("GEPEP23") & df$CO_ACAO == "2994", "ASSISTENCIA",
                ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 8) %in% c("EXTENSA","GEPEP21"), "EXTENSAO",
                ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 8) %in% c("PESQUIS","INOVACA", "GEPEP20"), "PESQUISA E INOVACAO",
-               ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 5) %in% c("CAPA"), "CAPACITACAO",
+               ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 5) %in% c("CAPA", "GPES"), "CAPACITACAO",
                ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 5) %in% c("PPES"), "FOLHA", ""))))))))))
   }
   if(database=="tg_nota_credito"){
@@ -229,7 +229,10 @@ pp_execucao <- function(df, vars_group, available=F, unselect=NULL){
       df %>% 
         group_by_at(.vars = c(vars_group, "CO_PLANO_INTERNO")) %>%
         summarise(VALOR = sum(CREDITO_DISPONIVEL, na.rm=TRUE)) %>% 
-        mutate(TIPO = ifelse(CO_PLANO_INTERNO %in% c("","'-8"), "DISPONIVEL_SND", "DISPONIVEL_CND")) %>% 
+        mutate(TIPO = ifelse(
+          substr(CO_PLANO_INTERNO, 2, 10) %in% 
+            c("", "REITORIA", "IFB", "GERAL", "ENSINO", "EXTENSAO","INOVACAO", "PESQUISA"), 
+          "DISPONIVEL_SND", "DISPONIVEL_CND")) %>% 
         group_by_at(.vars = c(vars_group, "TIPO")) %>% 
         summarise_at(.vars = "VALOR",.funs = sum, na.rm=TRUE) %>% 
         pivot_wider(names_from = "TIPO", values_from = "VALOR"),
@@ -315,28 +318,31 @@ pp_execucao_mes <- function(df, vars_group, available=F, unselect=NULL, cumsum_n
 #' 
 #' @export
 #' 
-pp_subtotal <- function(df, vars_group, total_name, total_all = T, position = "down", vars_suppress = NULL){
+pp_subtotal <- function(df, vars_group, total_name = NULL, total_all = T, position = "down", vars_suppress = NULL){
   vars_df <- sapply(df, class)
   vars_df <- names(vars_df[vars_df=="character"])
   no_group <- vars_df[!vars_df==vars_group]
   db_subtotal <- df
-  name_sub <- case_when(position=="up" ~ paste0("00", total_name), 
-                        position=="down" ~ paste0("zz", total_name))
+  if(is.null(total_name)) total_name <- ""
+  name_sub <- case_when(position=="up" ~ paste0("00TOTAL", total_name), 
+                        position=="down" ~ paste0("ZZTOTAL", total_name))
   db <- bind_rows(
     df,
     df %>% 
-      mutate_at(.vars = no_group, .funs = function(x){x=name_sub}) %>% 
+      mutate_at(.vars = no_group, .funs = function(x){x = name_sub}) %>% 
       group_by_at(.vars = vars_df) %>% 
       summarise(across(where(is.numeric), ~sum(., na.rm = TRUE))))
   tt <- which(db[,no_group[1]]==name_sub)
-  for(n in 1:length(no_group)){
+  for(n in seq_along(no_group)){
     for(i in tt){
       db[i, no_group[n]] <- paste(db[i, no_group[n]], db[i, vars_group])
     }
   }
+  db <- db %>% 
+    arrange_at(.vars = vars_df)
   if(total_all){
-    for(i in 1:length(vars_df)){
-      db_subtotal[,vars_df[i]] <- total_name
+    for(i in seq_along(vars_df)){
+      db_subtotal[, vars_df[i]] <- "Total"
     }
     db <- bind_rows(
       db, 
@@ -345,9 +351,7 @@ pp_subtotal <- function(df, vars_group, total_name, total_all = T, position = "d
         summarise(across(where(is.numeric), ~sum(., na.rm = TRUE))))
   }
   db <- db %>% 
-    arrange_at(.vars = vars_df)
-  db <- db %>% 
-    mutate_at(.vars = vars_df, ~gsub(pattern = "^00*|^zz*", replacement = "", x = .))
+    mutate_at(.vars = vars_df, ~gsub(pattern = "^00TOTAL*|^ZZTOTAL*", replacement = "", x = .))
   if(!is.null(vars_suppress)){
     db <- db[,colnames(db)[!colnames(db)==vars_suppress]]
   }
@@ -380,6 +384,7 @@ pp_subtotal <- function(df, vars_group, total_name, total_all = T, position = "d
 #' parâmetro 'nsmall' da função 'base::format'
 #' @param per_format Opção verdadeira 'TRUE' ou falsa 'FALSE', caso necessária
 #' a formatação do resultado final da fração
+#' @param per_diff Calcula a partir da diferenca
 #' @param arrange Ordenar por variáveis indicadas em 'arrange'
 #'
 #' @return 'data.frame' com o mês a mês da execução orçamentária e financeira
@@ -387,8 +392,8 @@ pp_subtotal <- function(df, vars_group, total_name, total_all = T, position = "d
 #' @export
 #' 
 pp_complete <- function(df, vars_group, available = FALSE, unselect=NULL, 
-                        total_vars_group, total_name, total_all = TRUE, position = "down", vars_suppress = NULL,
-                        per_num, per_den, per_nsmall = 1, per_format = F, arrange){
+                        total_vars_group, total_name = NULL, total_all = TRUE, position = "down", vars_suppress = NULL,
+                        per_num, per_den, per_nsmall = 1, per_format = F, per_diff = F,arrange){
   df <- pp_execucao(
     df = df,
     vars_group = vars_group,
@@ -406,7 +411,9 @@ pp_complete <- function(df, vars_group, available = FALSE, unselect=NULL,
       df = df, 
       num = per_num, 
       den = per_den, 
-      nsmall = per_nsmall)
+      nsmall = per_nsmall,
+      format = per_format, 
+      diff = per_diff)
     }
   df <- df %>% 
     mutate(across(where(is.numeric), ~replace_na(., 0)))

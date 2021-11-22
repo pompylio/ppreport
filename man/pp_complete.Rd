@@ -10,7 +10,7 @@ pp_complete(
   available = FALSE,
   unselect = NULL,
   total_vars_group,
-  total_name,
+  total_name = NULL,
   total_all = TRUE,
   position = "down",
   vars_suppress = NULL,
@@ -18,6 +18,7 @@ pp_complete(
   per_den,
   per_nsmall = 1,
   per_format = F,
+  per_diff = F,
   arrange
 )
 }
@@ -58,6 +59,8 @@ parâmetro 'nsmall' da função 'base::format'}
 
 \item{per_format}{Opção verdadeira 'TRUE' ou falsa 'FALSE', caso necessária
 a formatação do resultado final da fração}
+
+\item{per_diff}{Calcula a partir da diferenca}
 
 \item{arrange}{Ordenar por variáveis indicadas em 'arrange'}
 }

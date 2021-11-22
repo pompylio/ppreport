@@ -5,7 +5,12 @@
 \title{Layout padrão da tabela de informações básicas sobre o relatório em
 'rmarkdown' do tipo 'latex'}
 \usage{
-pp_info_latex(x, border_color = "ffffff", border_width = 0.1)
+pp_info_latex(
+  x,
+  title_color = "#ffffff",
+  border_color = "#ffffff",
+  border_width = 0.1
+)
 }
 \arguments{
 \item{x}{Vetor de itens para a tabela}

@@ -4,7 +4,14 @@
 \alias{pp_percent}
 \title{Calculo percentual}
 \usage{
-pp_percent(df, num = NULL, den = NULL, nsmall = 1, format = FALSE)
+pp_percent(
+  df,
+  num = NULL,
+  den = NULL,
+  nsmall = 1,
+  format = FALSE,
+  diff = FALSE
+)
 }
 \arguments{
 \item{df}{Objeto do tipo 'data.frame', o que requer colunas para os 
