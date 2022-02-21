@@ -106,7 +106,7 @@ pp_database <- function(path, database){
                ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 5) %in% c("IFB", "GERA"), "GERAL",
                ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 5) %in% c("GADM", "REIT", "ADMI"), "ADMINISTRACAO",
                ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 8) %in% c("ENSINO", "GEPEP19", "GEPEP22") & !df$CO_ACAO == "2994", "ENSINO",
-               ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 8) %in% c("ENSINOA","ENSINOR", "GEPEP23") & df$CO_ACAO == "2994", "ASSISTENCIA",
+               ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 8) %in% c("ENSINOA","ENSINOR", "GEPEP23","") & df$CO_ACAO == "2994", "ASSISTENCIA",
                ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 10) %in% c("ENSINORIP","GEPEP2305R"), "ASSISTENCIA RIP",
                ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 8) %in% c("EXTENSA","GEPEP21"), "EXTENSAO",
                ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 8) %in% c("PESQUIS","INOVACA", "GEPEP20"), "PESQUISA E INOVACAO",
