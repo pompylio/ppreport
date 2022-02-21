@@ -101,17 +101,27 @@ pp_database <- function(path, database){
   if(any(tb_data$colnames_new=="CO_PLANO_INTERNO") & 
      any(tb_data$colnames_new=="CO_UO") &
      any(tb_data$colnames_new=="CO_ACAO")){
-    df$AREA <- ifelse(is.na(df$CO_PLANO_INTERNO), "",
-               ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 5) %in% c("-8", "-9", ""), "",
-               ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 5) %in% c("IFB", "GERA"), "GERAL",
-               ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 5) %in% c("GADM", "REIT", "ADMI"), "ADMINISTRACAO",
-               ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 8) %in% c("ENSINO", "GEPEP19", "GEPEP22") & !df$CO_ACAO == "2994", "ENSINO",
-               ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 8) %in% c("ENSINOA","ENSINOR", "GEPEP23","") & df$CO_ACAO == "2994", "ASSISTENCIA",
-               ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 10) %in% c("ENSINORIP","GEPEP2305R"), "ASSISTENCIA RIP",
-               ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 8) %in% c("EXTENSA","GEPEP21"), "EXTENSAO",
-               ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 8) %in% c("PESQUIS","INOVACA", "GEPEP20"), "PESQUISA E INOVACAO",
-               ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 5) %in% c("CAPA", "GPES"), "CAPACITACAO",
-               ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 5) %in% c("PPES"), "FOLHA", "")))))))))))
+    # Classificação por Ação
+    df <- left_join(x = df, y = tb_acao[, c("CO_ACAO", "AREA")], by = "CO_ACAO")
+    df$AREA <- ifelse(!df$CO_UO == "26428", "EXTERNO", df$AREA)
+    # Classificação controle CGOR
+    df$AREA <- ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 11) %in% c("IFB", "GERAL"), "GERAL",
+               ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 11) %in% c("ALTERACAO"), "ALTERACAO",
+               ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 11) %in% c("ENSINO"), "ENSINO",
+               ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 11) %in% c("ENSINOAES"), "ASSISTENCIA",
+               ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 11) %in% c("ENSINORIP"), "ASSISTENCIA RIP",
+               ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 11) %in% c("EXTENSAO"), "EXTENSAO",
+               ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 11) %in% c("PESQUISA", "INOVACAO"), "PESQUISA E INOVACAO", df$AREA)))))))
+    # Classificação geral por PI
+    df$AREA <- ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 5) %in% c("GADM"), "ADMINISTRACAO",
+               ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 5) %in% c("GPES"), "PESSOAL",
+               ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 5) %in% c("GEPE"), "ENSINO EXTENSAO PESQUISA", df$AREA)))
+    # Classificação detalhe PI
+    df$AREA <- ifelse(df$AREA == "ENSINO EXTENSAO PESQUISA" & substr(df$CO_PLANO_INTERNO, 7, 8) %in% c("19", "22"), "ENSINO",
+               ifelse(df$AREA == "ENSINO EXTENSAO PESQUISA" & substr(df$CO_PLANO_INTERNO, 7, 8) %in% c("20"), "PESQUISA E INOVACAO",
+               ifelse(df$AREA == "ENSINO EXTENSAO PESQUISA" & substr(df$CO_PLANO_INTERNO, 7, 8) %in% c("21"), "EXTENSAO",
+               ifelse(df$AREA == "ENSINO EXTENSAO PESQUISA" & substr(df$CO_PLANO_INTERNO, 7, 8) %in% c("23"), "ASSISTENCIA",
+               ifelse(df$AREA == "PESSOAL" & substr(df$CO_PLANO_INTERNO, 7, 8) %in% c("56"), "CAPACITACAO", df$AREA)))))
   }
   if(database=="tg_nota_credito"){
     df$CO_UGR <- ifelse(df$GESTAO_EMITENTE == "26428" & !df$UG_EMITENTE == "158143" &  df$CO_FAVORECIDO == "158143" & df$CO_UGR == "'-8", df$UG_EMITENTE,
