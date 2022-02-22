@@ -5,7 +5,7 @@
 NULL
 
 utils::globalVariables(
-  c("CREDITO_DISPONIVEL", "CO_PLANO_INTERNO", "DISPONIVEL", "INDISPONIVEL","EMPENHADO", ".", "where"))
+  c("DOTACAO_ATUALIZADA", "CREDITO_DISPONIVEL", "CO_PLANO_INTERNO", "DISPONIVEL", "INDISPONIVEL","EMPENHADO", ".", "where"))
 
 #' Tratamento da base de dados
 #'
@@ -229,7 +229,11 @@ pp_orcamento <- function(df, area=NULL, co_uge=NULL, co_ugr=NULL, co_ug_by="ou",
 #' @export
 #' 
 pp_execucao <- function(df, vars_group, available=F, unselect=NULL){
-  vars_sum <- c("CREDITO_INDISPONIVEL", "CREDITO_DISPONIVEL", "EMPENHADO", "LIQUIDADO", "PAGO")
+  if(any(colnames(df)=="DOTACAO_ATUALIZADA")){
+    vars_sum <- c("DOTACAO_ATUALIZADA", "CREDITO_INDISPONIVEL", "CREDITO_DISPONIVEL", "EMPENHADO", "LIQUIDADO", "PAGO")
+  } else {
+    vars_sum <- c("CREDITO_INDISPONIVEL", "CREDITO_DISPONIVEL", "EMPENHADO", "LIQUIDADO", "PAGO")
+  }
   if(!is.null(unselect)){
     unselect <- gsub(pattern = "CREDITO_", replacement = "", x = unselect, fixed = TRUE)
   }
@@ -260,13 +264,22 @@ pp_execucao <- function(df, vars_group, available=F, unselect=NULL){
   df <- df %>% 
     mutate(across(where(is.numeric), ~replace_na(., 0))) %>% 
     mutate(across(where(is.character), ~replace_na(., "-"))) %>%  
-    rename_with(~ gsub("CREDITO_", "", .x, fixed = TRUE))
+    rename_with(~ gsub("CREDITO_", "", .x, fixed = TRUE)) %>% 
+    rename_with(~ gsub("_ATUALIZADA", "", .x, fixed = TRUE))
   for(i in 1:length(vars_num)){
     if(!any(colnames(df)==vars_num[i])) df[,vars_num[i]] <- 0
   }
   vars_num <- vars_num[!vars_num %in% unselect]
-  df <- df %>% 
-    mutate(DOTACAO = DISPONIVEL+INDISPONIVEL+EMPENHADO) %>% 
+  if(any(colnames(df)=="DOTACAO")){
+    df <- df %>% 
+      mutate(DOTACAO1 = DISPONIVEL+INDISPONIVEL+EMPENHADO)
+    df <- df %>% 
+      mutate(DOTACAO = ifelse(DOTACAO >= DOTACAO1, DOTACAO, DOTACAO1)) 
+  } else {
+    df <- df %>% 
+      mutate(DOTACAO = DISPONIVEL+INDISPONIVEL+EMPENHADO)
+  }
+  df <- df %>%  
     select_at(.vars = c(vars_group, vars_num)) %>% 
     filter_at(all_of(vars_num), any_vars(. != 0))
   return(df)
