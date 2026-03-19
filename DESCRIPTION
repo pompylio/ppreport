@@ -9,6 +9,6 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Suggests: testthat
-RoxygenNote: 7.1.1
-Imports: dplyr, lubridate, stringr, stringi, knitr, rmarkdown, flextable, readxl, tidyr
+RoxygenNote: 7.2.1
+Imports: dplyr, lubridate, stringr, stringi, knitr, flextable, readxl, rlang, tidyr
 Depends: R (>= 3.0)

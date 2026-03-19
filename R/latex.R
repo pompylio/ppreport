@@ -69,6 +69,7 @@ pp_content_latex <- function(bg_color = "#ffffff", border_color = "#ffffff", bor
 #' 'rmarkdown' do tipo 'latex'
 #'
 #' @param x Vetor de itens para a tabela
+#' @param title_color Cor do titulo
 #' @param border_color Cor da borda da tabela de conteúdo
 #' @param border_width Tamanho da linha da borda da tabela de conteúdo
 #'

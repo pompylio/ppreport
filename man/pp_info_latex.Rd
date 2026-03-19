@@ -15,6 +15,8 @@ pp_info_latex(
 \arguments{
 \item{x}{Vetor de itens para a tabela}
 
+\item{title_color}{Cor do titulo}
+
 \item{border_color}{Cor da borda da tabela de conteúdo}
 
 \item{border_width}{Tamanho da linha da borda da tabela de conteúdo}

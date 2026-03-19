@@ -15,25 +15,27 @@ pp_percent(
 }
 \arguments{
 \item{df}{Objeto do tipo 'data.frame', o que requer colunas para os 
-parâmetros 'num' e 'den'. Pode ser dispensado caso os parâmetros 
+par<c3><a2>metros 'num' e 'den'. Pode ser dispensado caso os par<c3><a2>metros 
 'num' e 'den' sejam vetores.}
 
-\item{num}{Numerador da fração, podendo ser uma ou mais colunas de classe 
-numérica de determinado 'data.frame' ou vetor de classe numérica, caso o 
-parâmetro 'df' não seja informado.}
+\item{num}{Numerador da fra<c3><a7><c3><a3>o, podendo ser uma ou mais colunas de classe 
+num<c3><a9>rica de determinado 'data.frame' ou vetor de classe num<c3><a9>rica, caso o 
+par<c3><a2>metro 'df' n<c3><a3>o seja informado.}
 
-\item{den}{Denominador da fração, podendo uma coluna de classe 
-numérica de determinado 'data.frame' ou vetor de classe numérica, caso
-o parâmetro 'df' não seja informado.}
+\item{den}{Denominador da fra<c3><a7><c3><a3>o, podendo uma coluna de classe 
+num<c3><a9>rica de determinado 'data.frame' ou vetor de classe num<c3><a9>rica, caso
+o par<c3><a2>metro 'df' n<c3><a3>o seja informado.}
 
-\item{nsmall}{Número de casas decimais após a vírgula, correspondente ao
-parâmetro 'nsmall' da função 'base::format'}
+\item{nsmall}{N<c3><ba>mero de casas decimais ap<c3><b3>s a v<c3><ad>rgula, correspondente ao
+par<c3><a2>metro 'nsmall' da fun<c3><a7><c3><a3>o 'base::format'}
 
-\item{format}{Opção verdadeira 'TRUE' ou falsa 'FALSE', caso necessária
-a formatação do resultado final da fração}
+\item{format}{Op<c3><a7><c3><a3>o verdadeira 'TRUE' ou falsa 'FALSE', caso necess<c3><a1>ria
+a formata<c3><a7><c3><a3>o do resultado final da fra<c3><a7><c3><a3>o}
+
+\item{diff}{Se 'T' subtrai por 100}
 }
 \value{
-Vetor 'vector' ou coluna 'column' do tipo numérica ou textual
+Vetor 'vector' ou coluna 'column' do tipo num<c3><a9>rica ou textual
 }
 \description{
 Calculo percentual

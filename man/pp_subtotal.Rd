@@ -16,16 +16,16 @@ pp_subtotal(
 \arguments{
 \item{df}{'data.frame' da base de dados}
 
-\item{vars_group}{Variáveis do 'data.frame' a serem agrupadas}
+\item{vars_group}{vari<c3><a1>veis do 'data.frame' a serem agrupadas}
 
 \item{total_name}{Nome da linha que conterá o somatório}
 
 \item{total_all}{Considera soma total por colunas numéricas se 'TRUE'}
 
 \item{position}{Posição das linhas subtotais no 'data.frame', podendo ser
-'up' para acima das variáveis agrupadas ou 'down' para baixo dessas variáveis}
+'up' para acima das vari<c3><a1>veis agrupadas ou 'down' para baixo dessas vari<c3><a1>veis}
 
-\item{vars_suppress}{Variáveis a serem suprimidas}
+\item{vars_suppress}{vari<c3><a1>veis a serem suprimidas}
 }
 \value{
 'data.frame' com o mês a mês da execução orçamentária e financeira

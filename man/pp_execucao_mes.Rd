@@ -17,15 +17,15 @@ pp_execucao_mes(
 \arguments{
 \item{df}{'data.frame' da base de dados 'tg_orcamento'}
 
-\item{vars_group}{Variáveis do 'data.frame' a serem agrupadas}
+\item{vars_group}{vari<c3><a1>veis do 'data.frame' a serem agrupadas}
 
 \item{available}{Considera detalhamento do 'CREDITO_DISPONIVEL' se 'TRUE'}
 
-\item{unselect}{Variáveis do 'data.frame' a serem desconsideradas}
+\item{unselect}{vari<c3><a1>veis do 'data.frame' a serem desconsideradas}
 
 \item{cumsum_num}{Considera soma acumulada por colunas numéricas se 'TRUE'}
 
-\item{percent}{Acrescenta variáveis a partir da função 'pp_percent' se 'TRUE.
+\item{percent}{Acrescenta vari<c3><a1>veis a partir da função 'pp_percent' se 'TRUE.
 Requer detalhamento em '...'}
 
 \item{...}{Argumentos da função 'pp_percent'}

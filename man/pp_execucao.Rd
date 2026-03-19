@@ -9,11 +9,11 @@ pp_execucao(df, vars_group, available = F, unselect = NULL)
 \arguments{
 \item{df}{'data.frame' da base de dados 'tg_orcamento'}
 
-\item{vars_group}{Variáveis do 'data.frame' a serem agrupadas}
+\item{vars_group}{vari<c3><a1>veis do 'data.frame' a serem agrupadas}
 
 \item{available}{Considera detalhamento do 'CREDITO_DISPONIVEL' se 'TRUE'}
 
-\item{unselect}{Variáveis do 'data.frame' a serem desconsideradas}
+\item{unselect}{vari<c3><a1>veis do 'data.frame' a serem desconsideradas}
 }
 \value{
 'data.frame' com a execução orçamentária e financeira

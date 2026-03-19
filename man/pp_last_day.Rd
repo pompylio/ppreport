@@ -2,22 +2,22 @@
 % Please edit documentation in R/base.R
 \name{pp_last_day}
 \alias{pp_last_day}
-\title{Último dia de determinada referência mensal ou anual}
+\title{<c3><9a>ltimo dia de determinada refer<c3><aa>ncia mensal ou anual}
 \usage{
 pp_last_day(x, by = "month", week_start = 1)
 }
 \arguments{
-\item{x}{Data de referência no formato 'yyyy-mm-dd'}
+\item{x}{Data de refer<c3><aa>ncia no formato 'yyyy-mm-dd'}
 
-\item{by}{Unidade da função 'round_date' do pacote lubridate, 
+\item{by}{Unidade da fun<c3><a7><c3><a3>o 'round_date' do pacote lubridate, 
 podendo ser 'day', 'week', 'month' ou 'year'}
 
-\item{week_start}{Início da semana. Variável a ser utilizada
-caso o parâmetro 'by' seja igual a 'month'}
+\item{week_start}{In<c3><ad>cio da semana. Vari<c3><a1>vel a ser utilizada
+caso o par<c3><a2>metro 'by' seja igual a 'month'}
 }
 \value{
-Último dia de determinada referência mensal ou anual
+<c3><9a>ltimo dia de determinada refer<c3><aa>ncia mensal ou anual
 }
 \description{
-Último dia de determinada referência mensal ou anual
+<c3><9a>ltimo dia de determinada refer<c3><aa>ncia mensal ou anual
 }

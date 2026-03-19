@@ -10,7 +10,7 @@ pp_total_fixed(df, fixed)
 \item{df}{Objeto do tipo 'data.frame'.}
 
 \item{fixed}{Colunas do 'data.frame' fixas, a serem desconsideradas
-em determinado cálculo somatório do total.}
+em determinado c<c3><a1>lculo somat<c3><b3>rio do total.}
 }
 \value{
 Soma total por colunas de um 'data.frame'

@@ -2,29 +2,29 @@
 % Please edit documentation in R/base.R
 \name{pp_format_str}
 \alias{pp_format_str}
-\title{Formatação padrão de uma 'string' para tratamento de dados}
+\title{Formata<c3><a7><c3><a3>o padr<c3><a3>o de uma 'string' para tratamento de dados}
 \usage{
 pp_format_str(x, enc = "Latin-ASCII", sep = "_", str_to = "upper")
 }
 \arguments{
 \item{x}{Fragmento de texto.}
 
-\item{enc}{Codificação de texto padrão.}
+\item{enc}{Codifica<c3><a7><c3><a3>o de texto padr<c3><a3>o.}
 
-\item{sep}{Separador a ser utilizado em substituição ao espaço ' '.}
+\item{sep}{Separador a ser utilizado em substitui<c3><a7><c3><a3>o ao espa<c3><a7>o ' '.}
 
-\item{str_to}{Formatação final compatível com as funções
+\item{str_to}{Formata<c3><a7><c3><a3>o final compat<c3><ad>vel com as fun<c3><a7><c3><b5>es
 do pacote 'stringr': 
-- upper (str_to_upper) para tornar todas as letras maiúsculas
-- lower (str_to_lower) para tornar todas as letras minúsculas
-- sentence (str_to_sentence) para a primeira letra maiúscula e as 
-demais minúsculas
-- title (str_to_title) tornar maiúscia a primeira letra de cada 
-palavra que compôem o fragmento de texto}
+- upper (str_to_upper) para tornar todas as letras mai<c3><ba>sculas
+- lower (str_to_lower) para tornar todas as letras min<c3><ba>sculas
+- sentence (str_to_sentence) para a primeira letra mai<c3><ba>scula e as 
+demais min<c3><ba>sculas
+- title (str_to_title) tornar mai<c3><ba>scia a primeira letra de cada 
+palavra que comp<c3><b4>em o fragmento de texto}
 }
 \value{
 Fragmento de texto tratado.
 }
 \description{
-Formatação padrão de uma 'string' para tratamento de dados
+Formata<c3><a7><c3><a3>o padr<c3><a3>o de uma 'string' para tratamento de dados
 }

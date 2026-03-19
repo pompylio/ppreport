@@ -7,9 +7,9 @@ NULL
 
 #' Barra de progresso impressa no console
 #'
-#' @param x Valor numérico da posição na barra de progresso, de 1 a 100. 
-#' @param msg Mensagem de saída
-#' @param bar Caracter símbolo da barra de progresso
+#' @param x Valor num<c3><a9>rico da posi<c3><a7><c3><a3>o na barra de progresso, de 1 a 100. 
+#' @param msg Mensagem de sa<c3><ad>da
+#' @param bar bar Caracter s<c3><ad>mbolo da barra de progresso
 #' @param time Inclui a hora atual se 'TRUE'
 #' 
 #' @return Barra de progresso.
@@ -21,15 +21,38 @@ pp_progress <- function(x, msg = "", bar = "-", time = F){
   base::message(msg)
 }
 
-#' Último dia de determinada referência mensal ou anual
+#' Barra de progresso impressa no console
 #'
-#' @param x Data de referência no formato 'yyyy-mm-dd'
-#' @param by Unidade da função 'round_date' do pacote lubridate, 
+#' @param etapa Valor num<c3><a9>rico da etapa
+#' @param total Valor num<c3><a9>rico do total
+#' @param label Texto a ser exibido na mensagem de progresso
+#' 
+#' @return Barra de progresso.
+#' 
+#' @export
+pp_progress2 <- function(etapa, total, label = "Progresso") {
+  percent <- round((etapa / total) * 100)
+  barra_len <- 20
+  preenchido <- round((etapa / total) * barra_len)
+  vazio <- barra_len - preenchido
+  
+  barra <- paste0(replicate(preenchido, "="), collapse = "")
+  espaco <- paste0(replicate(vazio, "-"), collapse = "")
+  
+  timestamp <- format(Sys.time(), "%H:%M:%S")
+  cat(sprintf("[%s] [%s%s] %d%% - %s\n", 
+              timestamp, barra, espaco, percent, label))
+}
+
+#' <c3><9a>ltimo dia de determinada refer<c3><aa>ncia mensal ou anual
+#'
+#' @param x Data de refer<c3><aa>ncia no formato 'yyyy-mm-dd'
+#' @param by Unidade da fun<c3><a7><c3><a3>o 'round_date' do pacote lubridate, 
 #' podendo ser 'day', 'week', 'month' ou 'year'
-#' @param week_start Início da semana. Variável a ser utilizada
-#' caso o parâmetro 'by' seja igual a 'month'
+#' @param week_start In<c3><ad>cio da semana. Vari<c3><a1>vel a ser utilizada
+#' caso o par<c3><a2>metro 'by' seja igual a 'month'
 #'
-#' @return Último dia de determinada referência mensal ou anual
+#' @return <c3><9a>ltimo dia de determinada refer<c3><aa>ncia mensal ou anual
 #' 
 #' @export
 pp_last_day <- function(x, by = "month", week_start = 1){
@@ -41,12 +64,12 @@ pp_last_day <- function(x, by = "month", week_start = 1){
 
 #' Intervalo entre datas
 #'
-#' @param start Data de início do intervalo, no formato 'yyyy-mm-dd'
+#' @param start Data de in<c3><ad>cio do intervalo, no formato 'yyyy-mm-dd'
 #' @param end Data fim do intervalo, no formato 'yyyy-mm-dd'
-#' @param by Unidade da função 'round_date' do pacote lubridate, 
+#' @param by Unidade da fun<c3><a7><c3><a3>o 'round_date' do pacote lubridate,
 #' podendo ser 'day', 'week', 'month' ou 'year'
 #' @param position Caso preenchido, retorna o primeiro 'first' ou
-#' o último 'last' dia do intervalo para os parâmetros de 'by' 
+#' o <c3><ba>ltimo 'last' dia do intervalo para os par<c3><a2>metros de 'by'
 #' 'month' ou 'year'
 #'
 #' @return Intervalo entre datas
@@ -67,7 +90,7 @@ pp_interval <- function(start, end = Sys.Date(), by = "day", position = "first")
 
 #' Importa e lista objetos de determinado arquivo '.rda'
 #'
-#' @param x Arquivo de extensão '.rda' para importação dos dados.
+#' @param x Arquivo de extens<c3><a3>o '.rda' para importa<c3><a7><c3><a3>o dos dados.
 #' Aceita caminho completo.
 #'
 #' @return Arquivos '.rda' em formato de lista
@@ -82,20 +105,21 @@ pp_list_rda <- function(x) {
 #' Calculo percentual
 #'
 #' @param df Objeto do tipo 'data.frame', o que requer colunas para os 
-#' parâmetros 'num' e 'den'. Pode ser dispensado caso os parâmetros 
+#' par<c3><a2>metros 'num' e 'den'. Pode ser dispensado caso os par<c3><a2>metros 
 #' 'num' e 'den' sejam vetores.
-#' @param num Numerador da fração, podendo ser uma ou mais colunas de classe 
-#' numérica de determinado 'data.frame' ou vetor de classe numérica, caso o 
-#' parâmetro 'df' não seja informado. 
-#' @param den Denominador da fração, podendo uma coluna de classe 
-#' numérica de determinado 'data.frame' ou vetor de classe numérica, caso
-#' o parâmetro 'df' não seja informado.
-#' @param nsmall Número de casas decimais após a vírgula, correspondente ao
-#' parâmetro 'nsmall' da função 'base::format'
-#' @param format Opção verdadeira 'TRUE' ou falsa 'FALSE', caso necessária
-#' a formatação do resultado final da fração
+#' @param num Numerador da fra<c3><a7><c3><a3>o, podendo ser uma ou mais colunas de classe 
+#' num<c3><a9>rica de determinado 'data.frame' ou vetor de classe num<c3><a9>rica, caso o 
+#' par<c3><a2>metro 'df' n<c3><a3>o seja informado. 
+#' @param den Denominador da fra<c3><a7><c3><a3>o, podendo uma coluna de classe 
+#' num<c3><a9>rica de determinado 'data.frame' ou vetor de classe num<c3><a9>rica, caso
+#' o par<c3><a2>metro 'df' n<c3><a3>o seja informado.
+#' @param nsmall N<c3><ba>mero de casas decimais ap<c3><b3>s a v<c3><ad>rgula, correspondente ao
+#' par<c3><a2>metro 'nsmall' da fun<c3><a7><c3><a3>o 'base::format'
+#' @param format Op<c3><a7><c3><a3>o verdadeira 'TRUE' ou falsa 'FALSE', caso necess<c3><a1>ria
+#' a formata<c3><a7><c3><a3>o do resultado final da fra<c3><a7><c3><a3>o
+#' @param diff Se 'T' subtrai por 100
 #' 
-#' @return Vetor 'vector' ou coluna 'column' do tipo numérica ou textual
+#' @return Vetor 'vector' ou coluna 'column' do tipo num<c3><a9>rica ou textual
 #' 
 #' @export
 pp_percent <- function(df, num=NULL, den=NULL, nsmall=1, format=FALSE, diff=FALSE){
@@ -121,7 +145,7 @@ pp_percent <- function(df, num=NULL, den=NULL, nsmall=1, format=FALSE, diff=FALS
           }
         }
     } else {
-      stop("Necessário um numerador e um denominador")
+      stop("Necess<c3><a1>rio um numerador e um denominador")
       }
   return(df)
 }
@@ -130,7 +154,7 @@ pp_percent <- function(df, num=NULL, den=NULL, nsmall=1, format=FALSE, diff=FALS
 #'
 #' @param df Objeto do tipo 'data.frame'.
 #' @param fixed Colunas do 'data.frame' fixas, a serem desconsideradas
-#' em determinado cálculo somatório do total.
+#' em determinado c<c3><a1>lculo somat<c3><b3>rio do total.
 #' 
 #' @return Soma total por colunas de um 'data.frame'
 #' 
@@ -145,19 +169,19 @@ pp_total_fixed <- function(df, fixed){
   return(df)
 }
 
-#' Formatação padrão de uma 'string' para tratamento de dados
+#' Formata<c3><a7><c3><a3>o padr<c3><a3>o de uma 'string' para tratamento de dados
 #'
 #' @param x Fragmento de texto.
-#' @param enc Codificação de texto padrão.
-#' @param sep Separador a ser utilizado em substituição ao espaço ' '.
-#' @param str_to Formatação final compatível com as funções
+#' @param enc Codifica<c3><a7><c3><a3>o de texto padr<c3><a3>o.
+#' @param sep Separador a ser utilizado em substitui<c3><a7><c3><a3>o ao espa<c3><a7>o ' '.
+#' @param str_to Formata<c3><a7><c3><a3>o final compat<c3><ad>vel com as fun<c3><a7><c3><b5>es
 #' do pacote 'stringr': 
-#' - upper (str_to_upper) para tornar todas as letras maiúsculas
-#' - lower (str_to_lower) para tornar todas as letras minúsculas
-#' - sentence (str_to_sentence) para a primeira letra maiúscula e as 
-#' demais minúsculas
-#' - title (str_to_title) tornar maiúscia a primeira letra de cada 
-#' palavra que compôem o fragmento de texto 
+#' - upper (str_to_upper) para tornar todas as letras mai<c3><ba>sculas
+#' - lower (str_to_lower) para tornar todas as letras min<c3><ba>sculas
+#' - sentence (str_to_sentence) para a primeira letra mai<c3><ba>scula e as 
+#' demais min<c3><ba>sculas
+#' - title (str_to_title) tornar mai<c3><ba>scia a primeira letra de cada 
+#' palavra que comp<c3><b4>em o fragmento de texto
 #' 
 #' @return Fragmento de texto tratado.
 #' 
@@ -177,11 +201,11 @@ pp_format_str <- function(x, enc = "Latin-ASCII", sep = "_", str_to = "upper"){
   return(x)
 }
 
-#' Conversão de mês numérico do TG para sigla do mês
+#' Convers<c3><a3>o de m<c3><aa>s num<c3><a9>rico do TG para sigla do m<c3><aa>s
 #'
-#' @param x Mês ou meses em formato numérico (1, 2, 3, 01, 02, 03).
+#' @param x M<c3><aa>s ou meses em formato num<c3><a9>rico (1, 2, 3, 01, 02, 03).
 #' 
-#' @return Mês ou meses no formato texto (Jan, Fev, Mar, Jan, Fev, Mar)
+#' @return M<c3><aa>s ou meses no formato texto (Jan, Fev, Mar, Jan, Fev, Mar)
 #' 
 #' @export
 pp_format_month <- function(x){

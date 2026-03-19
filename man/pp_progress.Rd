@@ -7,11 +7,11 @@
 pp_progress(x, msg = "", bar = "-", time = F)
 }
 \arguments{
-\item{x}{Valor numérico da posição na barra de progresso, de 1 a 100.}
+\item{x}{Valor num<c3><a9>rico da posi<c3><a7><c3><a3>o na barra de progresso, de 1 a 100.}
 
-\item{msg}{Mensagem de saída}
+\item{msg}{Mensagem de sa<c3><ad>da}
 
-\item{bar}{Caracter símbolo da barra de progresso}
+\item{bar}{bar Caracter s<c3><ad>mbolo da barra de progresso}
 
 \item{time}{Inclui a hora atual se 'TRUE'}
 }

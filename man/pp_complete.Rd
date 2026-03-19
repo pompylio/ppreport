@@ -25,16 +25,16 @@ pp_complete(
 \arguments{
 \item{df}{'data.frame' da base de dados}
 
-\item{vars_group}{Variáveis do 'data.frame' a serem agrupadas por meio da
+\item{vars_group}{vari<c3><a1>veis do 'data.frame' a serem agrupadas por meio da
 função 'pp_execucao'}
 
 \item{available}{Considera detalhamento do 'CREDITO_DISPONIVEL' se 'TRUE' a
 ser considerada na função 'pp_execucao'}
 
-\item{unselect}{Variáveis do 'data.frame' a serem desconsideradas na
+\item{unselect}{vari<c3><a1>veis do 'data.frame' a serem desconsideradas na
 função 'pp_execucao'}
 
-\item{total_vars_group}{Variáveis do 'data.frame' a serem agrupadas por meio
+\item{total_vars_group}{vari<c3><a1>veis do 'data.frame' a serem agrupadas por meio
 da função 'pp_subtotal'}
 
 \item{total_name}{Nome da linha que conterá o somatório}
@@ -42,9 +42,9 @@ da função 'pp_subtotal'}
 \item{total_all}{Considera soma total por colunas numéricas se 'TRUE'}
 
 \item{position}{Posição das linhas subtotais no 'data.frame', podendo ser
-'up' para acima das variáveis agrupadas ou 'down' para baixo dessas variáveis}
+'up' para acima das vari<c3><a1>veis agrupadas ou 'down' para baixo dessas vari<c3><a1>veis}
 
-\item{vars_suppress}{Variáveis a serem suprimidas}
+\item{vars_suppress}{vari<c3><a1>veis a serem suprimidas}
 
 \item{per_num}{Numerador da fração, podendo ser uma ou mais colunas de classe 
 numérica de determinado 'data.frame' ou vetor de classe numérica, caso o 
@@ -62,7 +62,7 @@ a formatação do resultado final da fração}
 
 \item{per_diff}{Calcula a partir da diferenca}
 
-\item{arrange}{Ordenar por variáveis indicadas em 'arrange'}
+\item{arrange}{Ordenar por vari<c3><a1>veis indicadas em 'arrange'}
 }
 \value{
 'data.frame' com o mês a mês da execução orçamentária e financeira

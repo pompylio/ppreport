@@ -1,11 +1,18 @@
 #' @import dplyr
 #' @importFrom readxl read_xlsx
 #' @importFrom tidyr pivot_longer pivot_wider replace_na
+#' @importFrom stats setNames
+#' @importFrom rlang :=
 #' @export
 NULL
 
 utils::globalVariables(
-  c("DOTACAO_ATUALIZADA", "CREDITO_DISPONIVEL", "CO_PLANO_INTERNO", "DISPONIVEL", "INDISPONIVEL","EMPENHADO", ".", "where"))
+  c("DOTACAO_ATUALIZADA", "CREDITO_DISPONIVEL", "CO_PLANO_INTERNO", "DISPONIVEL", "INDISPONIVEL","EMPENHADO", 
+    ".", "where",
+    "AREA", "CO_ACAO", "CO_FAVORECIDO", "CO_GRUPO", "CO_UGE", "CO_UGR", 
+    "CO_UO", "DOTACAO", "DOTACAO1", "EMITENTE", "FAVORECIDO", "GRUPO", 
+    "RE_EMITENTE", "RE_FAVORECIDO", "RE_UGE", "RE_UGR", "UGE", "UGR", 
+    "UG_EMITENTE", "co_ug", "grupo", "re_ug"))
 
 #' Tratamento da base de dados
 #'
@@ -38,11 +45,11 @@ pp_database <- function(path, database){
   }
   tb_title_missing <- tb_data[!tb_data$colnames%in%tb_title_new,]
   tb_title_valid <- tb_data[tb_data$colnames%in%tb_title_new,]
+  tb_title_valid$type_text <- ifelse(tb_title_valid$type == "date", "text", tb_title_valid$type)
   df <- suppressMessages(
     read_xlsx(
       path = path, 
       col_names = tb_title_valid$colnames_new, 
-      col_types = tb_title_valid$type,
       skip = max(tb_data$skip), 
     progress = FALSE))
   if(!ncol(tb_title)==nrow(tb_data)){
@@ -53,107 +60,142 @@ pp_database <- function(path, database){
       select_at(.vars = tb_data$colnames_new)
   }
   df <- df %>% 
-    mutate(across(where(is.numeric), ~replace_na(., 0))) %>% 
-    mutate(across(where(is.character), ~replace_na(., ""))) %>% 
-    mutate(across(where(is.character), ~ifelse(. %in% c("'-7", "'-8","'-9", "SEM INFORMACAO", "NAO SE APLICA", "CODIGO INVALIDO"),"",.)))
-  if(any(tb_data$colnames_new=="EMISSAO"))
-    df$EMISSAO <- as.Date(df$EMISSAO,"%d/%m/%Y")
-  if(any(tb_data$colnames_new=="MES"))
-    df$MES <- ifelse(nchar(df$MES)==1,paste0("0",df$MES),df$MES)
-  if(any(tb_data$colnames_new=="CO_UGR")){
-    df$RE_UGR <- ""
-    if(!any(tb_data$colnames_new=="UGR"))
-      df$UGR <- ""
-    for(i in 1:nrow(tb_ug)){
-      df[df$CO_UGR == tb_ug$co_ug[i], ]$UGR <- tb_ug$ug[i]
-      df[df$CO_UGR == tb_ug$co_ug[i], ]$RE_UGR <- tb_ug$re_ug[i]
-    }
+    mutate(across(.cols = any_of(tb_data[tb_data$type == "text", ]$colnames_new), ~as.character(.))) %>% 
+    mutate(across(.cols = any_of(tb_data[tb_data$type == "date", ]$colnames_new), ~as.Date(., format = "%d/%m/%Y"))) %>% 
+    mutate(across(.cols = any_of(tb_data[tb_data$type == "numeric", ]$colnames_new), ~as.numeric(gsub(pattern = ",", replacement = ".", x = .)))) %>% 
+    mutate(across(where(is.character), ~ifelse(. %in% c("'@", "'-7", "'-8","'-9", "SEM INFORMACAO", "NAO SE APLICA", "CODIGO INVALIDO"),"",.))) %>% 
+    mutate(across(where(is.character), ~coalesce(., ""))) %>% 
+    mutate(across(where(is.numeric), ~coalesce(., 0))) %>% 
+    mutate(across(.cols = any_of("MES"), ~sprintf("%02d", as.numeric(as.character(.)))))
+
+  if("CO_UGR" %in% names(df)){
+    df <- left_join(df, tb_ug[, c("co_ug", "re_ug")], by = c("CO_UGR"="co_ug")) %>% 
+      rename(RE_UGR = re_ug) %>% 
+      relocate(RE_UGR, .after = CO_UGR) %>% 
+      mutate(UGR = if("UGR" %in% names(.)) UGR else "") %>% 
+      mutate(RE_UGR = coalesce(RE_UGR, UGR))
   }
-  if(any(tb_data$colnames_new=="CO_UGE")){
-    df$RE_UGE <- ""
-    if(!any(tb_data$colnames_new=="UGE"))
-      df$UGE <- ""
-    for(i in 1:nrow(tb_ug)){
-      df[df$CO_UGE == tb_ug$co_ug[i],]$UGE <- tb_ug$ug[i]
-      df[df$CO_UGE == tb_ug$co_ug[i],]$RE_UGE <- tb_ug$re_ug[i]
-    }
+  if("CO_UGE" %in% names(df)){
+    df <- left_join(df, tb_ug[, c("co_ug", "re_ug")], by = c("CO_UGE"="co_ug")) %>% 
+      rename(RE_UGE = re_ug) %>% 
+      relocate(RE_UGE, .after = CO_UGE) %>% 
+      mutate(UGE = if("UGE" %in% names(.)) UGE else "") %>%
+      mutate(RE_UGE = coalesce(RE_UGE, UGE))
   }
-  if(any(tb_data$colnames_new=="UG_EMITENTE")){
-    df$RE_EMITENTE <- ""
-    for(i in 1:nrow(tb_ug)){
-      df[df$UG_EMITENTE == tb_ug$co_ug[i],]$EMITENTE <- tb_ug$ug[i]
-      df[df$UG_EMITENTE == tb_ug$co_ug[i],]$RE_EMITENTE <- tb_ug$re_ug[i]
-    }
+  if("UG_EMITENTE" %in% names(df)){
+    df <- left_join(df, tb_ug[, c("co_ug", "re_ug")], by = c("UG_EMITENTE"="co_ug")) %>% 
+      rename(RE_EMITENTE = re_ug) %>% 
+      relocate(RE_EMITENTE, .after = UG_EMITENTE) %>% 
+      mutate(EMITENTE = if("EMITENTE" %in% names(.)) EMITENTE else "") %>%
+      mutate(RE_EMITENTE = coalesce(RE_EMITENTE, EMITENTE))
   }
-  if(any(tb_data$colnames_new=="CO_FAVORECIDO")){
-    df$RE_FAVORECIDO <- ""
-    for(i in 1:nrow(tb_ug)){
-      df[df$CO_FAVORECIDO == tb_ug$co_ug[i],]$FAVORECIDO <- tb_ug$ug[i]
-      df[df$CO_FAVORECIDO == tb_ug$co_ug[i],]$RE_FAVORECIDO <- tb_ug$re_ug[i]
-    }
+  if("CO_FAVORECIDO" %in% names(df)){
+    df <- left_join(df, tb_ug[, c("co_ug", "re_ug")], by = c("CO_FAVORECIDO"="co_ug")) %>% 
+      rename(RE_FAVORECIDO = re_ug) %>% 
+      relocate(RE_FAVORECIDO, .after = CO_FAVORECIDO) %>% 
+      mutate(FAVORECIDO = if("FAVORECIDO" %in% names(.)) FAVORECIDO else "") %>%
+      mutate(RE_FAVORECIDO = coalesce(RE_FAVORECIDO, FAVORECIDO))
   }
-  if(any(tb_data$colnames_new=="CO_GRUPO") &
-     any(tb_data$colnames_new=="GRUPO")){
-    for(i in 1:nrow(tb_gnd)){
-      df[df$CO_GRUPO == tb_gnd$co_grupo[i],]$GRUPO <- tb_gnd$grupo[i]
-    }
+  if("CO_GRUPO" %in% names(df)){
+    df <- df[, !names(df) %in% c("GRUPO")] %>% 
+      left_join(tb_gnd, by = c("CO_GRUPO"="co_grupo")) %>% 
+      rename(GRUPO = grupo) %>% 
+      relocate(GRUPO, .after = CO_GRUPO)
   }
-  if(any(tb_data$colnames_new=="CO_PLANO_INTERNO") & 
-     any(tb_data$colnames_new=="CO_UO") &
-     any(tb_data$colnames_new=="CO_ACAO")){
-    # Classificação por Ação
-    df <- left_join(x = df, y = tb_acao[, c("CO_ACAO", "AREA")], by = "CO_ACAO")
-    df$AREA <- ifelse(!df$CO_UO == "26428", "EXTERNO", df$AREA)
-    # Classificação controle CGOR
-    df$AREA <- ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 11) %in% c("IFB", "GERAL"), "GERAL",
-               ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 11) %in% c("ALTERACAO"), "ALTERACAO",
-               ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 11) %in% c("ENSINO"), "ENSINO",
-               ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 11) %in% c("ENSINOAES"), "ASSISTENCIA",
-               ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 11) %in% c("ENSINORIP"), "ASSISTENCIA RIP",
-               ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 11) %in% c("EXTENSAO"), "EXTENSAO",
-               ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 11) %in% c("PESQUISA", "INOVACAO"), "PESQUISA E INOVACAO", df$AREA)))))))
-    # Classificação geral por PI
-    df$AREA <- ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 5) %in% c("GADM"), "ADMINISTRACAO",
-               ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 5) %in% c("GPES"), "PESSOAL",
-               ifelse(df$CO_UO == "26428" & substr(df$CO_PLANO_INTERNO, 2, 5) %in% c("GEPE"), "ENSINO EXTENSAO PESQUISA", df$AREA)))
-    # Classificação detalhe PI
-    df$AREA <- ifelse(df$AREA == "ENSINO EXTENSAO PESQUISA" & substr(df$CO_PLANO_INTERNO, 7, 8) %in% c("19", "22"), "ENSINO",
-               ifelse(df$AREA == "ENSINO EXTENSAO PESQUISA" & substr(df$CO_PLANO_INTERNO, 7, 8) %in% c("20"), "PESQUISA E INOVACAO",
-               ifelse(df$AREA == "ENSINO EXTENSAO PESQUISA" & substr(df$CO_PLANO_INTERNO, 7, 8) %in% c("21"), "EXTENSAO",
-               ifelse(df$AREA == "ENSINO EXTENSAO PESQUISA" & substr(df$CO_PLANO_INTERNO, 7, 8) %in% c("23"), "ASSISTENCIA",
-               ifelse(df$AREA == "PESSOAL" & substr(df$CO_PLANO_INTERNO, 7, 8) %in% c("56"), "CAPACITACAO", df$AREA)))))
+  if(all(c("CO_UO", "CO_ACAO") %in% names(df))){
+    df <- left_join(x = df, y = tb_acao[, c("CO_ACAO", "AREA")], by = "CO_ACAO") %>%
+      mutate(AREA = ifelse(!CO_UO == "26428", "EXTERNO", AREA)) %>% 
+      relocate(AREA, .before = where(is.numeric))
   }
-  if(database=="tg_nota_credito"){
-    df$CO_UGR <- ifelse(df$GESTAO_EMITENTE == "26428" & !df$UG_EMITENTE == "158143" &  df$CO_FAVORECIDO == "158143" & df$CO_UGR == "'-8", df$UG_EMITENTE,
-                 ifelse(df$GESTAO_EMITENTE == "26428" &  df$UG_EMITENTE == "158143" & !df$CO_FAVORECIDO == "158143" & df$CO_UGR == "'-8", df$CO_FAVORECIDO, df$CO_UGR))
-    df$CATEGORIA <- ifelse(!df$GESTAO_EMITENTE == "26428", "EXTERNO",
-                    ifelse( df$GESTAO_EMITENTE == "26428" & !df$CO_FAVORECIDO %in% unique(tb_ug$co_ug), "EXTERNO",
-                    ifelse( df$GESTAO_EMITENTE == "26428" &  df$UG_EMITENTE == "158143" & df$CO_FAVORECIDO == df$CO_UGR, "DISTRIBUICAO",
-                    ifelse( df$GESTAO_EMITENTE == "26428" &  df$CO_FAVORECIDO == "158143" & df$UG_EMITENTE == df$CO_UGR, "DISTRIBUICAO",
-                    ifelse( df$GESTAO_EMITENTE == "26428" & !df$UG_EMITENTE == "158143" & !df$CO_FAVORECIDO == "151843", "MOVIMENTACAO",
-                    ifelse( df$GESTAO_EMITENTE == "26428" &  df$CO_UGR == "158143", "MOVIMENTACAO", "OUTRA"))))))
-    df$TIPO <- ifelse(!df$GESTAO_EMITENTE == "26428" & df$CO_EVENTO %in% c("300300","300301","300303","300306","300316"), "ENTRADA",
-               ifelse(!df$GESTAO_EMITENTE == "26428" & df$CO_EVENTO %in% c("300302","300318"), "SAIDA",
-               ifelse(!df$CO_FAVORECIDO %in% unique(tb_ug$co_ug) & df$CO_EVENTO %in% c("300300","300301","300303","300304","300306","300307","300316","300317"), "SAIDA",
-               ifelse(!df$CO_FAVORECIDO %in% unique(tb_ug$co_ug) & df$CO_EVENTO %in% c("300302","300318"), "ENTRADA",
-               ifelse( df$UG_EMITENTE == "158143" & df$CO_EVENTO %in% c("300063"), "SAIDA",
-               ifelse( df$UG_EMITENTE == "158143" & df$CO_EVENTO %in% c("300083","300089"), "ENTRADA",
-               ifelse( df$CO_FAVORECIDO == "158143" & df$CO_EVENTO %in% c("300063", "300084"), "ENTRADA",
-               ifelse( df$CO_FAVORECIDO == "158143" & df$CO_EVENTO %in% c("300083","305063"), "SAIDA", "OUTRA"))))))))
-    df$VALOR_RIFB = ifelse(df$TIPO == "SAIDA", df$VALOR*-1, 
-                    ifelse(df$TIPO == "OUTRA", 0, df$VALOR))
-    df$VALOR_CAMPI = ifelse(df$TIPO == "ENTRADA", df$VALOR*-1,
-                     ifelse(df$TIPO == "OUTRA", 0,df$VALOR))
+  if(all(c("GESTAO_EMITENTE", "CO_ACAO") %in% names(df))){
+    df <- left_join(x = df, y = tb_acao[, c("CO_ACAO", "AREA")], by = "CO_ACAO") %>%
+      mutate(AREA = ifelse(!CO_UO == "26428", "EXTERNO", AREA)) %>% 
+      relocate(AREA, .before = where(is.numeric))
   }
-  df <- df %>% relocate(where(is.numeric), .after = where(is.character))
   return(df)
 }
 
-#' Soma e agrupamento de variáveis
+#' Tratamento da base de dados (Novo)
+#'
+#' @param path Caminho do arquivo base no formato 'xlsx' 
+#' @param database Base de dados correspondente ao arquivo 'xlsx', podendo ser:
+#' - tg_nota_credito
+#' - tg_nota_dotacao
+#' - tg_nota_empenho
+#' - tg_orcamento
+#' - tg_receita_propria
+#' - sp_pessoal
+#'
+#' @return Dado tratado
+#' 
+#' @export
+pp_database2 <- function(path, database) {
+  tb_data_sub <- tb_data[tb_data$file == database, ]
+  
+  df <- readxl::read_xlsx(path = path, progress = F)
+  nomes_atuais <- colnames(df)
+  map_nomes <- tb_data_sub$colnames_new
+  names(map_nomes) <- tb_data_sub$colnames
+  novos_nomes <- map_nomes[nomes_atuais]
+  colnames(df) <- ifelse(is.na(novos_nomes), nomes_atuais, novos_nomes)
+  tb_title_missing <- setdiff(tb_data_sub$colnames_new, colnames(df))
+  if(length(tb_title_missing) > 0){
+    df[tb_title_missing] <- NA
+  }
+  
+  invalidos <- c("'@", "'-7", "'-8","'-9", "SEM INFORMACAO", "NAO SE APLICA", "CODIGO INVALIDO")
+  
+  df <- df %>%
+    select(-any_of("ITEM_INFORMACAO")) %>% 
+    mutate(
+      across(any_of(tb_data_sub$colnames_new[tb_data_sub$type == "text"]),
+             ~ {
+               x <- as.character(.x)
+               x[x %in% invalidos] <- ""
+               coalesce(x, "")}),
+      across(any_of(tb_data_sub$colnames_new[tb_data_sub$type == "numeric"]),
+             ~ {
+               if (is.character(.x))
+                 .x <- chartr(",", ".", .x)
+               x <- as.numeric(.x)
+               coalesce(x, 0)}),
+      across(any_of(tb_data_sub$colnames_new[tb_data_sub$type == "date"]),
+             ~ as.Date(.x, format = "%d/%m/%Y")),
+      across(any_of("MES"), ~ sprintf("%02d", as.numeric(as.character(.x)))))
+  
+  cols_ug <- intersect(names(df), c("CO_UGR", "CO_UGE", "UG_EMITENTE", "CO_FAVORECIDO"))
+  for(col in cols_ug) {
+    suffix <- sub("CO_", "RE_", sub("UG_", "RE_", col))
+    orig_nom <- sub("CO_", "", sub("UG_", "", col))
+    df <- df %>% 
+      left_join(tb_ug %>% select(co_ug, re_ug), by = setNames("co_ug", col)) %>% 
+      rename(!!suffix := re_ug) %>% 
+      relocate(!!suffix, .after = !!col)
+    if(orig_nom %in% names(df)) {
+      df[[suffix]] <- coalesce(df[[suffix]], as.character(df[[orig_nom]]))
+    }
+  }
+  if("CO_GRUPO" %in% names(df)) {
+    df <- df %>% select(-any_of("GRUPO")) %>% 
+      left_join(tb_gnd, by = c("CO_GRUPO" = "co_grupo")) %>% 
+      rename(GRUPO = grupo) %>% relocate(GRUPO, .after = CO_GRUPO)
+  }
+  if("CO_ACAO" %in% names(df) && ("CO_UO" %in% names(df) || "GESTAO_EMITENTE" %in% names(df))) {
+    uo_col <- if("CO_UO" %in% names(df)) "CO_UO" else "GESTAO_EMITENTE"
+    
+    df <- df %>% 
+      left_join(tb_acao %>% select(CO_ACAO, AREA), by = "CO_ACAO") %>% 
+      mutate(AREA = if_else(.data[[uo_col]] != "26428", "EXTERNO", AREA)) %>% 
+      relocate(AREA, .before = where(is.numeric))
+  }
+  return(df)
+}
+
+#' Soma e agrupamento de vari<c3><a1>veis
 #'
 #' @param df 'data.frame'
-#' @param vars_group Variáveis do 'data.frame' a serem agrupadas
-#' @param vars_sum Variáveis do 'data.frame' a serem somadas
+#' @param vars_group vari<c3><a1>veis do 'data.frame' a serem agrupadas
+#' @param vars_sum vari<c3><a1>veis do 'data.frame' a serem somadas
 #'
 #' @return 'data.frame' agrupado
 #' 
@@ -220,9 +262,9 @@ pp_orcamento <- function(df, area=NULL, co_uge=NULL, co_ugr=NULL, co_ug_by="ou",
 #' Gera dados de execução orçamentária e financeira
 #'
 #' @param df 'data.frame' da base de dados 'tg_orcamento'
-#' @param vars_group Variáveis do 'data.frame' a serem agrupadas
+#' @param vars_group vari<c3><a1>veis do 'data.frame' a serem agrupadas
 #' @param available Considera detalhamento do 'CREDITO_DISPONIVEL' se 'TRUE'
-#' @param unselect Variáveis do 'data.frame' a serem desconsideradas
+#' @param unselect vari<c3><a1>veis do 'data.frame' a serem desconsideradas
 #'
 #' @return 'data.frame' com a execução orçamentária e financeira
 #' 
@@ -288,11 +330,11 @@ pp_execucao <- function(df, vars_group, available=F, unselect=NULL){
 #' Gera dados mensais de execução orçamentária e financeira
 #'
 #' @param df 'data.frame' da base de dados 'tg_orcamento'
-#' @param vars_group Variáveis do 'data.frame' a serem agrupadas
+#' @param vars_group vari<c3><a1>veis do 'data.frame' a serem agrupadas
 #' @param available Considera detalhamento do 'CREDITO_DISPONIVEL' se 'TRUE'
-#' @param unselect Variáveis do 'data.frame' a serem desconsideradas
+#' @param unselect vari<c3><a1>veis do 'data.frame' a serem desconsideradas
 #' @param cumsum_num Considera soma acumulada por colunas numéricas se 'TRUE'
-#' @param percent Acrescenta variáveis a partir da função 'pp_percent' se 'TRUE.
+#' @param percent Acrescenta vari<c3><a1>veis a partir da função 'pp_percent' se 'TRUE.
 #' Requer detalhamento em '...'
 #' @param ... Argumentos da função 'pp_percent'
 #'
@@ -331,12 +373,12 @@ pp_execucao_mes <- function(df, vars_group, available=F, unselect=NULL, cumsum_n
 #' Acrescenta linhas de subtotais e total em 'data.frame'
 #'
 #' @param df 'data.frame' da base de dados
-#' @param vars_group Variáveis do 'data.frame' a serem agrupadas
+#' @param vars_group vari<c3><a1>veis do 'data.frame' a serem agrupadas
 #' @param total_name Nome da linha que conterá o somatório
 #' @param total_all Considera soma total por colunas numéricas se 'TRUE'
 #' @param position Posição das linhas subtotais no 'data.frame', podendo ser
-#' 'up' para acima das variáveis agrupadas ou 'down' para baixo dessas variáveis
-#' @param vars_suppress Variáveis a serem suprimidas
+#' 'up' para acima das vari<c3><a1>veis agrupadas ou 'down' para baixo dessas vari<c3><a1>veis
+#' @param vars_suppress vari<c3><a1>veis a serem suprimidas
 #'
 #' @return 'data.frame' com o mês a mês da execução orçamentária e financeira
 #' 
@@ -385,19 +427,19 @@ pp_subtotal <- function(df, vars_group, total_name = NULL, total_all = T, positi
 #' Função completa que aplica as funções de coleta e tratamento dos dados
 #'
 #' @param df 'data.frame' da base de dados
-#' @param vars_group Variáveis do 'data.frame' a serem agrupadas por meio da
+#' @param vars_group vari<c3><a1>veis do 'data.frame' a serem agrupadas por meio da
 #' função 'pp_execucao'
 #' @param available Considera detalhamento do 'CREDITO_DISPONIVEL' se 'TRUE' a
 #' ser considerada na função 'pp_execucao'
-#' @param unselect Variáveis do 'data.frame' a serem desconsideradas na
+#' @param unselect vari<c3><a1>veis do 'data.frame' a serem desconsideradas na
 #' função 'pp_execucao'
-#' @param total_vars_group Variáveis do 'data.frame' a serem agrupadas por meio
+#' @param total_vars_group vari<c3><a1>veis do 'data.frame' a serem agrupadas por meio
 #' da função 'pp_subtotal'
 #' @param total_name Nome da linha que conterá o somatório
 #' @param total_all Considera soma total por colunas numéricas se 'TRUE'
 #' @param position Posição das linhas subtotais no 'data.frame', podendo ser
-#' 'up' para acima das variáveis agrupadas ou 'down' para baixo dessas variáveis
-#' @param vars_suppress Variáveis a serem suprimidas
+#' 'up' para acima das vari<c3><a1>veis agrupadas ou 'down' para baixo dessas vari<c3><a1>veis
+#' @param vars_suppress vari<c3><a1>veis a serem suprimidas
 #' @param per_num Numerador da fração, podendo ser uma ou mais colunas de classe 
 #' numérica de determinado 'data.frame' ou vetor de classe numérica, caso o 
 #' parâmetro 'df' não seja informado. 
@@ -409,7 +451,7 @@ pp_subtotal <- function(df, vars_group, total_name = NULL, total_all = T, positi
 #' @param per_format Opção verdadeira 'TRUE' ou falsa 'FALSE', caso necessária
 #' a formatação do resultado final da fração
 #' @param per_diff Calcula a partir da diferenca
-#' @param arrange Ordenar por variáveis indicadas em 'arrange'
+#' @param arrange Ordenar por vari<c3><a1>veis indicadas em 'arrange'
 #'
 #' @return 'data.frame' com o mês a mês da execução orçamentária e financeira
 #' 

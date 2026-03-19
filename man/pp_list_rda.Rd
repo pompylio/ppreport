@@ -7,7 +7,7 @@
 pp_list_rda(x)
 }
 \arguments{
-\item{x}{Arquivo de extensão '.rda' para importação dos dados.
+\item{x}{Arquivo de extens<c3><a3>o '.rda' para importa<c3><a7><c3><a3>o dos dados.
 Aceita caminho completo.}
 }
 \value{

@@ -7,15 +7,15 @@
 pp_interval(start, end = Sys.Date(), by = "day", position = "first")
 }
 \arguments{
-\item{start}{Data de início do intervalo, no formato 'yyyy-mm-dd'}
+\item{start}{Data de in<c3><ad>cio do intervalo, no formato 'yyyy-mm-dd'}
 
 \item{end}{Data fim do intervalo, no formato 'yyyy-mm-dd'}
 
-\item{by}{Unidade da função 'round_date' do pacote lubridate, 
+\item{by}{Unidade da fun<c3><a7><c3><a3>o 'round_date' do pacote lubridate,
 podendo ser 'day', 'week', 'month' ou 'year'}
 
 \item{position}{Caso preenchido, retorna o primeiro 'first' ou
-o último 'last' dia do intervalo para os parâmetros de 'by' 
+o <c3><ba>ltimo 'last' dia do intervalo para os par<c3><a2>metros de 'by'
 'month' ou 'year'}
 }
 \value{

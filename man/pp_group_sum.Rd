@@ -2,20 +2,20 @@
 % Please edit documentation in R/data.R
 \name{pp_group_sum}
 \alias{pp_group_sum}
-\title{Soma e agrupamento de variáveis}
+\title{Soma e agrupamento de vari<c3><a1>veis}
 \usage{
 pp_group_sum(df, vars_group, vars_sum)
 }
 \arguments{
 \item{df}{'data.frame'}
 
-\item{vars_group}{Variáveis do 'data.frame' a serem agrupadas}
+\item{vars_group}{vari<c3><a1>veis do 'data.frame' a serem agrupadas}
 
-\item{vars_sum}{Variáveis do 'data.frame' a serem somadas}
+\item{vars_sum}{vari<c3><a1>veis do 'data.frame' a serem somadas}
 }
 \value{
 'data.frame' agrupado
 }
 \description{
-Soma e agrupamento de variáveis
+Soma e agrupamento de vari<c3><a1>veis
 }
